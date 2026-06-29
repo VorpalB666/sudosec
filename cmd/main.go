@@ -9,5 +9,5 @@ import (
 
 func main() {
 	fmt.Println("WELCOME TO SUDOSEC")
-	discovery.SubdomainCheck("https://sl-lifestyle.de/")
+	discovery.SubdomainCheck("heise.de", "")
 }

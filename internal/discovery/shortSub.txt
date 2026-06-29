@@ -1,0 +1,13 @@
+admin
+home
+create
+api
+cola
+store
+show
+shop
+webinare
+sec-it
+main
+login
+vikings

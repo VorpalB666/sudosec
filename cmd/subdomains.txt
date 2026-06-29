@@ -1,0 +1,6 @@
+api.heise.de
+cola.heise.de
+shop.heise.de
+webinare.heise.de
+sec-it.heise.de
+vikings.heise.de
