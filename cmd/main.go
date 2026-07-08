@@ -5,9 +5,17 @@ package main
 import (
 	"fmt"
 	"sudosec/internal/discovery"
+	"sudosec/internal/scan"
 )
 
 func main() {
+	url := "heise.de"
+	ports := []int{20, 21, 22, 23, 25, 53, 80, 110, 119, 123, 143, 161, 194, 443}
+
 	fmt.Println("WELCOME TO SUDOSEC")
-	discovery.SubdomainCheck("example.com", "")
+	discovery.SubdomainCheck(url, "")
+
+	for i := 1; i < len(ports); i++ {
+		scan.PortScan(url, ports[i])
+	}
 }
