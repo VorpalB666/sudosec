@@ -15,7 +15,7 @@ func PortScan(url string, port int) {
 	// Open or creat Outputfile
 
 	outputFile, err := os.OpenFile("port.txt",
-		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //0644 ordnet Nutzern Schreibrechte zu
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 	}

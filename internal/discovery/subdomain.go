@@ -25,7 +25,8 @@ func SubdomainCheck(url, wordlist string) {
 	defer file.Close()
 
 	// Open or creat Outputfile
-	outputFile, err := os.Create("subdomains.txt")
+	outputFile, err := os.OpenFile("subdomains.txt",
+		os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644) //0644 ordnet Nutzern Schreibrechte zu
 	if err != nil {
 		fmt.Printf("Error: %v", err)
 	}
