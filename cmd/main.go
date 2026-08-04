@@ -8,7 +8,7 @@ import (
 	"sudosec/internal/scan"
 )
 func main() {
-	url := "heise.de"
+	url := "example.de"
 	ports := []int{20, 21, 22, 23, 25, 53, 80, 110, 119, 123, 143, 161, 194, 443}
 
 	fmt.Println("WELCOME TO SUDOSEC")
