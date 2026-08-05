@@ -1,59 +1,44 @@
 package scan
 
-/* HTTP Security Checks (Basic)
- Mehr “Security”-Value
-Checke:
-	• HTTPS vorhanden?
-	• Security Headers:
-		• Strict-Transport-Security
-		• Content-Security-Policy
- Das fällt unter Web Security Analyse (typisch für Scanner-Tools) [libhunt.com] */
-
-
 import (
 	"crypto/tls"
-	"fmt"
 	"net/http"
 	"time"
 )
 
-// =============================================================================
-// TEIL A: STRUKTURDEFINITIONEN (wie Klausur Aufgabe 1 & 4)
-// =============================================================================
-
 // SecurityHeaders enthält Security-Headers einer Response
 type SecurityHeaders struct {
 	StrictTransportSecurity *string
-	ContentSecurityPolicy *string
-	XFrameOptions *string
-	XContentTypeOptions *string
-	CertificateIssuer *string
+	ContentSecurityPolicy   *string
+	XFrameOptions           *string
+	XContentTypeOptions     *string
+	CertificateIssuer       *string
 }
 
 // HTTPCheckResult fasst Ergebnisse eines HTTP Security Checks zusammen
 type HTTPCheckResult struct {
-	url string
-	statusCode int
+	url          string
+	statusCode   int
 	responseTime time.Duration
-	https bool
-	secure bool
-	headers *SecurityHeaders
-	issues []string
-	riskLevel RiskLevel
+	https        bool
+	secure       bool
+	headers      *SecurityHeaders
+	issues       []string
+	riskLevel    RiskLevel
 }
 
 // RiskLevel definiert Sicherheitsbewertungen (0=unknown, 1=low, 2=medium, 3=high, 4=critical)
 type RiskLevel int
 
 const (
-	RiskUnknown RiskLevel = iota
-	RiskLow					//1
-	RiskMedium				//2
-	RiskHigh				//3
-	RiskCritical			//4
+	RiskUnknown  RiskLevel = iota
+	RiskLow                //1
+	RiskMedium             //2
+	RiskHigh               //3
+	RiskCritical           //4
 )
 
-// String implementiert fmt.Stringer für RiskLevel
+// String implementiert fmt.String für RiskLevel
 func (r RiskLevel) String() string {
 	// <DEINE CODE HIER>
 	switch r {
@@ -72,31 +57,29 @@ func (r RiskLevel) String() string {
 	}
 }
 
-// =============================================================================
-// TEIL B: HTTP Scanner Struct & Constructor
-// =============================================================================
-
 // HTTPScanner führt Security-Checks durch
-// FÜLLEN: Definiere die struct mit:
-// - Client (*http.Client)
-// - Timeout (time.Duration)
-// - UserAgent (string)
 type HTTPScanner struct {
-	// <DEINE CODE HIER>
+	Client    *http.Client
+	Timeout   time.Duration
+	UserAgent string
 }
 
 // NewHTTPScanner erstellt einen neuen Scanner
-// FÜLLEN: Erstelle und returne einen *HTTPScanner mit Initialisierung von:
-// - http.Client mit Timeout und Transport (TLSConfig.InsecureSkipVerify=true)
-// - Timeout aus Parameter
-// - UserAgent="Mozilla/5.0 (compatible; ReconTool)"
 func NewHTTPScanner(timeout time.Duration) *HTTPScanner {
-	// <DEINE CODE HIER: http.Client erstellen mit Timeout und Transport>
-	client := // <DEINE CODE HIER>
-	
-	// <DEINE CODE HIER: HTTPScanner mit Pointer Return erstellen und initialisieren>
+	// 1. http.Client erstellen mit Timeout und Transport-Konfiguration
+	client := &http.Client{
+		Timeout: timeout,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true, // ⚠️ Nur für Testing! Production=false!
+			},
+		},
+	}
+
 	return &HTTPScanner{
-		// <DEINE CODE HIER: Felder belegen>
+		Client:    http.DefaultClient,
+		Timeout:   timeout,
+		UserAgent: "Mozilla/5.0 (compatible; ReconTool)",
 	}
 }
 
@@ -122,54 +105,54 @@ func (s *HTTPScanner) CheckHTTP(url string) (*HTTPCheckResult, error) {
 	result := &HTTPCheckResult{
 		// <DEINE CODE HIER: Initialisiere alle Felder mit sinnvollen Defaults>
 	}
-	
+
 	// Request erstellen
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		// <DEINE CODE HIER: Issue appenden, RiskLevel setzen, return result, err>
 	}
-	
+
 	req.Header.Set("User-Agent", s.UserAgent)
-	
+
 	// Execute Request
 	resp, err := s.Client.Do(req)
 	if err != nil {
 		// <DEINE CODE HIER: Fehlerbehandlung mit Issue-Append und Return>
 	}
 	defer resp.Body.Close()
-	
+
 	// Response-Time und Status-Code speichern
 	// <DEINE CODE HIER>
-	
+
 	// HTTPS prüfen
 	result.HTTPS = len(url) >= 8 && url[:8] == "https://"
-	
+
 	// Security Headers Check
 	// <DEINE CODE HIER: headers = s.checkSecurityHeaders(resp)>
-	
+
 	// === SECURITY CHECK LOGIC ===
 	// Missing HTTPS?
 	if !result.HTTPS {
 		// <DEINE CODE HIER: Issue appenden, maxRisk aufrufen>
 	}
-	
+
 	// Missing HSTS? (headers.StrictTransportSecurity == nil)
 	// <DEINE CODE HIER: Check und Issue-Handling>
-	
+
 	// Missing CSP?
 	// <DEINE CODE HIER>
-	
+
 	// Missing X-Frame-Options?
 	// <DEINE CODE HIER>
-	
+
 	// HTTP Error Status?
 	if result.StatusCode >= 400 {
 		// <DEINE CODE HIER>
 	}
-	
+
 	// Secure Flag bestimmen
 	result.Secure = len(result.Issues) == 0 || result.RiskLevel <= RiskLow
-	
+
 	return result, nil
 }
 
@@ -178,7 +161,7 @@ func (s *HTTPScanner) CheckHTTP(url string) (*HTTPCheckResult, error) {
 // =============================================================================
 
 // checkSecurityHeaders extrahiert Security-Headers aus Response
-// FÜLLEN: 
+// FÜLLEN:
 // 1. SecurityHeaders Struct initialisieren (alle Ptr auf nil)
 // 2. Für jeden Header: resp.Header.Get(key) wenn != "" dann Address-of (&val) speichern
 // 3. Wenn resp.TLS != nil und PeerCertificates existieren: CertificateIssuer setzen
@@ -187,22 +170,22 @@ func (s *HTTPScanner) checkSecurityHeaders(resp *http.Response) *SecurityHeaders
 	headers := &SecurityHeaders{
 		// <DEINE CODE HIER: Alle Felder auf nil initialisieren>
 	}
-	
+
 	// Helper: Header-Wert holen und als Pointer speichern
 	// Beispiel für HSTS:
 	if val := resp.Header.Get("Strict-Transport-Security"); val != "" {
 		// <DEINE CODE HIER: headers.StrictTransportSecurity = &val>
 	}
-	
+
 	// CSP, X-Frame-Options, X-Content-Type-Options gleich behandeln
 	// <DEINE CODE HIER: Diese drei Header ebenfalls extrahieren>
-	
+
 	// Certificate Info
 	if resp.TLS != nil && len(resp.TLS.PeerCertificates) > 0 {
 		cert := resp.TLS.PeerCertificates[0]
 		// <DEINE CODE HIER: headers.CertificateIssuer = &cert.Issuer.CommonName>
 	}
-	
+
 	return headers
 }
 
@@ -227,21 +210,21 @@ func FormatResult(r *HTTPCheckResult) string {
 	if r == nil {
 		return "<nil>"
 	}
-	
+
 	// <DEINE CODE HIER: Icon und Grundinfos mit fmt.Sprintf>
 	output := ""
-	
+
 	// Header-Infos (falls vorhanden)
 	if r.Headers != nil {
 		// <DEINE CODE HIER: HSTS und CSP anzeigen>
 	}
-	
+
 	// Issues auflisten
 	if len(r.Issues) > 0 {
 		output += "  Issues:\n"
 		// <DEINE CODE HIER: for range loop über Issues>
 	}
-	
+
 	return output
 }
 
