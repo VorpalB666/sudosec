@@ -54,13 +54,19 @@ const (
 )
 
 // String implementiert fmt.Stringer für RiskLevel
-// FÜLLEN: Switch-Statement mit allen RiskLevel-Werten
 func (r RiskLevel) String() string {
 	// <DEINE CODE HIER>
 	switch r {
 	case RiskUnknown:
 		return "unknown"
-		// <DEINE CODE HIER>: Alle anderen Stufen case ...: return "..."
+	case RiskLow:
+		return "risk low"
+	case RiskMedium:
+		return "risk medium"
+	case RiskHigh:
+		return "risk high"
+	case RiskCritical:
+		return "risk critical"
 	default:
 		return "invalid"
 	}
