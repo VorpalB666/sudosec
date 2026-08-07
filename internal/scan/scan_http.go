@@ -83,9 +83,8 @@ func NewHTTPScanner(timeout time.Duration) *HTTPScanner {
 	}
 }
 
-// =============================================================================
-// TEIL C: CORE METHODE MIT POINTER RECEIVER (wie Klausur Aufgabe 4 insertElement)
-// =============================================================================
+// Part C: Main http checks
+/
 
 // CheckHTTP führt den kompletten Security-Check durch
 // HINWEIS: Dies ist ein POINTER RECEIVER (s *HTTPScanner)!
@@ -106,10 +105,10 @@ func (s *HTTPScanner) CheckHTTP(url string) (*HTTPCheckResult, error) {
 		// <DEINE CODE HIER: Initialisiere alle Felder mit sinnvollen Defaults>
 	}
 
-	// Request erstellen
+	// Create Request
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		// <DEINE CODE HIER: Issue appenden, RiskLevel setzen, return result, err>
+		fmt.Println("Error: Could not create new request")
 	}
 
 	req.Header.Set("User-Agent", s.UserAgent)
@@ -117,7 +116,7 @@ func (s *HTTPScanner) CheckHTTP(url string) (*HTTPCheckResult, error) {
 	// Execute Request
 	resp, err := s.Client.Do(req)
 	if err != nil {
-		// <DEINE CODE HIER: Fehlerbehandlung mit Issue-Append und Return>
+		fmt.Println("Error: Could not execute request")
 	}
 	defer resp.Body.Close()
 
